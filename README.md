@@ -26,7 +26,7 @@ Para la versión visual (tkinter), tkinter generalmente viene preinstalado con P
 sudo apt-get install python3-tk
 ````
 
-## Versión No Visual (CLI)
+## Versión CMD (CLI)
 La versión no visual se ejecuta en la terminal y permite:
 
 1. Añadir usuarios/correos y contraseñas sin autenticación de administrador.
@@ -43,39 +43,6 @@ python codline.py
 **Credenciales de Administrador:**
 `Usuario: aadmin`
 `Contraseña: admin`
-
-## Versión Visual (GUI)
-Ubicación:
-Carpeta: Visual/ Archivo: Visual/codlineVisual.py
-La versión visual tiene una interfaz gráfica de usuario (GUI) creada con tkinter que permite:
-
-1. Añadir usuarios/correos y contraseñas mediante cuadros de diálogo.
-2. Ver usuarios/correos y contraseñas en una ventana con un área de texto desplazable, solicitando autenticación de administrador.
-3. Modificar o eliminar usuarios/correos y contraseñas, solicitando autenticación de administrador, a través de una interfaz gráfica.
-**Cómo Ejecutar:**
-*Abre una terminal y navega a la carpeta Visual:*
-````bash
-cd Visual
-````
-Ejecuta:
-````bash
-python codlineVisual.py
-````
-**Credenciales de Administrador:**
-`Usuario: adminEMP`
-`Contraseña: 123456abc987`
-
-## Formato de Almacenamiento en password_manager.txt
-Las entradas de usuarios/correos y contraseñas se guardan en el archivo password_manager.txt con el siguiente formato:
-
-Sitio web / Aplicación: https://www.instagram.com/
-Usuario / Correo: example_user
-Contraseña: example_password
-
-----------------------------------------------------------------------
-Sitio web / Aplicación: https://github.com/
-Usuario / Correo: another_user
-Contraseña: another_password
 
 
 

@@ -16,11 +16,32 @@ from datetime import datetime
 from getpass import getpass
 from hashlib import sha256
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, Iterator, List, Optional
 
 
-DATA_FILE = Path("password_manager.json")
-LEGACY_FILE = Path("password_manager.txt")
+def _resolve_data_file() -> Path:
+    """Obtiene la ruta del fichero JSON respetando variables de entorno."""
+
+    env_path = os.environ.get("PASSWORD_MANAGER_DATA")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    return (Path.home() / ".password_manager" / "password_manager.json").resolve()
+
+
+DATA_FILE = _resolve_data_file()
+BASE_DIR = Path(__file__).resolve().parent
+
+
+def _legacy_file_candidates() -> Iterator[Path]:
+    """Proporciona posibles ubicaciones del antiguo fichero de texto."""
+
+    yield DATA_FILE.with_suffix(".txt")
+    yield BASE_DIR / "password_manager.txt"
+    yield Path.cwd() / "password_manager.txt"
+
+
+LEGACY_FILE_CANDIDATES = tuple(dict.fromkeys(path for path in _legacy_file_candidates()))
 
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD_HASH = sha256("1234".encode("utf-8")).hexdigest()
@@ -129,6 +150,7 @@ def load_entries() -> List[Entry]:
 def save_entries(entries: Iterable[Entry]) -> None:
     """Guarda los registros en disco con sangría para lectura sencilla."""
 
+    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
     with DATA_FILE.open("w", encoding="utf-8") as fp:
         json.dump(list(entries), fp, indent=2, ensure_ascii=False)
 
@@ -147,18 +169,30 @@ def build_entry(site: str, username: str, password: str, admin_password: str) ->
     }
 
 
+def _find_legacy_file() -> Optional[Path]:
+    """Devuelve la ruta del fichero de texto antiguo si existe."""
+
+    for candidate in LEGACY_FILE_CANDIDATES:
+        if candidate.exists():
+            return candidate
+    return None
+
+
 def ensure_storage(admin_password: str) -> None:
     """Crea o migra el almacenamiento inicial si es necesario."""
+
+    DATA_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     if DATA_FILE.exists():
         return
 
-    if not LEGACY_FILE.exists():
+    legacy_file = _find_legacy_file()
+    if legacy_file is None:
         save_entries([])
         return
 
     entries: List[Entry] = []
-    with LEGACY_FILE.open("r", encoding="utf-8") as fp:
+    with legacy_file.open("r", encoding="utf-8") as fp:
         lines = [line.strip() for line in fp.readlines() if line.strip()]
 
     for i in range(0, len(lines), 3):
@@ -171,7 +205,10 @@ def ensure_storage(admin_password: str) -> None:
         entries.append(build_entry(site, username, password, admin_password))
 
     save_entries(entries)
-    LEGACY_FILE.rename(LEGACY_FILE.with_suffix(".bak"))
+    try:
+        legacy_file.rename(legacy_file.with_suffix(".bak"))
+    except OSError:
+        pass
 
 
 # === Lógica de autenticación === #

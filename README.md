@@ -1,51 +1,55 @@
-*ESPAÑOL*
+# Password Manager (CLI)
 
+This project provides a terminal-based password manager that lets you store, browse, edit, and delete credentials for websites or applications. All interactions happen through a guided command-line menu.
 
-# Administrador de Contraseñas
+## Project Contents
 
-Este proyecto es un administrador de contraseñas que permite almacenar, visualizar, modificar y eliminar contraseñas para diferentes sitios web o aplicaciones. Hay dos versiones disponibles:
+- `codline.py`: Main CLI application.
+- `password_manager.json`: Credentials database created automatically on first run (per user). A legacy `password_manager.txt` file will be migrated and renamed to `password_manager.bak` the first time you run the updated tool.
 
-1. **Versión no visual (consola/CLI)**
-2. **Versión visual (interfaz gráfica/GUI con `tkinter`)**
+## Requirements
 
-## Contenido del Proyecto
+- Python 3.9 or newer.
 
-- `password_manager.txt`: Archivo donde se guardan las contraseñas y usuarios/ correos electrónicos.
-- `codline.py`: Script de la versión no visual.
-- `Visual/`: Carpeta que contiene la versión visual.
+You can verify the installed version with:
 
-## Requisitos Previos
-
-Asegúrate de tener Python instalado. Puedes verificarlo ejecutando:
 ```bash
 python --version
-````
+```
 
-Para la versión visual (tkinter), tkinter generalmente viene preinstalado con Python. Si tienes problemas, asegúrate de tener una instalación completa de Python o instala tkinter usando el siguiente comando en algunas distribuciones de Linux:
+## Running the CLI
+
+1. Open a terminal in the project root.
+2. Run the application:
+   ```bash
+   python codline.py
+   ```
+3. Authenticate with the administrator credentials when prompted:
+   - **User:** `admin`
+   - **Password:** `1234`
+4. Follow the on-screen menu to add, list, modify, or delete credentials.
+
+### Storage location
+
+By default the JSON database is stored at:
+
+- **Linux/macOS:** `~/.password_manager/password_manager.json`
+- **Windows:** `C:\Users\<User>\.password_manager\password_manager.json`
+
+You can override the storage path by setting the `PASSWORD_MANAGER_DATA` environment variable to an absolute or relative path before running the script. Example:
+
 ```bash
-sudo apt-get install python3-tk
-````
-
-## Versión CMD (CLI)
-La versión no visual se ejecuta en la terminal y permite:
-
-1. Añadir usuarios/correos y contraseñas sin autenticación de administrador.
-2. Ver usuarios/correos y contraseñas con filtros, solicitando autenticación de administrador.
-3. Modificar o eliminar usuarios/correos y contraseñas, solicitando autenticación de administrador.
-**Cómo Ejecutar:**
-Abre una terminal en la raíz del proyecto.
-Ejecuta
-```bash
+export PASSWORD_MANAGER_DATA="/path/to/custom/location.json"
 python codline.py
-````
-4. Sigue las instrucciones en pantalla para interactuar con el menú.
+```
 
-**Credenciales de Administrador:**
-`Usuario: aadmin`
-`Contraseña: admin`
+## Features
 
+- Administrator login with three attempts before exit.
+- Passwords stored as both SHA-256 hashes and symmetrically encrypted values so they can be shown after admin validation.
+- Interactive filters and sorting when listing credentials.
+- Migration from the previous plain-text format to the new JSON structure.
 
+## Security Notice
 
-*Seguridad: Esta aplicación guarda las contraseñas en texto plano. Se recomienda usar en entornos de prueba o educativos. Para un uso serio, considera cifrar las contraseñas antes de almacenarlas.*
-
-*Dependencias: Ambas versiones requieren Python. La versión visual también requiere tkinter, que viene con la mayoría de las instalaciones de Python.*
+This application is designed for educational purposes. Passwords are encrypted with a reversible XOR scheme derived from the administrator password and should not be considered secure for production use. For real-world deployments, integrate a proven key management solution and stronger cryptography.
